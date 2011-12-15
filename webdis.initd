@@ -1,0 +1,87 @@
+#! /bin/sh
+#
+# chkconfig: - 55 45
+# description:	The webdis daemon.
+# processname: webdis
+# config: /etc/sysconfig/webdis
+# pidfile: /var/run/webdis/webdis.pid
+
+# Standard LSB functions
+#. /lib/lsb/init-functions
+
+# Source function library.
+. /etc/init.d/functions
+
+USER=nobody
+CONFFILE=/etc/webdis.prod.json
+
+if [ -f /etc/sysconfig/webdis ]; then 
+	. /etc/sysconfig/webdis
+fi
+
+# Check that networking is up.
+. /etc/sysconfig/network
+
+if [ "$NETWORKING" = "no" ]
+then
+	exit 0
+fi
+
+RETVAL=0
+prog="webdis"
+
+start () {
+	echo -n $"Starting $prog: "
+    if [ "`stat -c %U /var/run/webdis`" != "$USER" ]; then
+        chown $USER /var/run/webdis
+    fi
+
+    touch /var/log/webdis.log
+    chown $USER /var/log/webdis.log
+
+	daemon --user $USER --pidfile /var/run/webdis/webdis.pid webdis $CONFFILE 
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/webdis
+        pidof webdis > /var/run/webdis/webdis.pid
+}
+stop () {
+	echo -n $"Stopping $prog: "
+	killproc -p /var/run/webdis/webdis.pid /usr/bin/webdis
+	RETVAL=$?
+	echo
+	if [ $RETVAL -eq 0 ] ; then
+	    rm -f /var/lock/subsys/webdis
+	    rm -f /var/run/webdis.pid
+	fi
+}
+
+restart () {
+        stop
+        start
+}
+
+
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+	status webdis
+	;;
+  restart|reload|force-reload)
+	restart
+	;;
+  condrestart)
+	[ -f /var/lock/subsys/webdis ] && restart || :
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|status|restart|reload|force-reload|condrestart}"
+	exit 1
+esac
+
+exit $?
