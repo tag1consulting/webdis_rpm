@@ -3,14 +3,14 @@
 
 Name: webdis
 Version: 0.1
-Release: 2
+Release: 3
 Summary: A fast HTTP interface for Redis
 Group:	Web
 License: GPL
 URL: http://webd.is
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 # Source is on github git://github.com/nicolasff/webdis.git
-Source0: webdis.0.1.478c62c66be1da120.tar.gz
+Source0: webdis-a26a868.git.20120212.tar.gz
 Source1: webdis.initd
 BuildRequires:	binutils libevent-devel
 Requires: libevent chkconfig initscripts
@@ -53,6 +53,9 @@ fi
 
 
 %changelog
+* Sun Feb 12 2012 Jeff Sheltren <jeff@tag1consulting.com>
+- Update to latest HEAD from git
+
 * Thu Dec 13 2011 Jeff Sheltren <jeff@tag1consulting.com>
 - Spec cleanup per Fedora guidelines
 - Add chkconfig calls to post scripts
